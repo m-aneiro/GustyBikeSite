@@ -15,6 +15,12 @@ def home():
     return render_template('home.html', page_title='gusty.bike')
 
 
+@app.route('/register')
+def register():
+
+    return render_template('register.html', page_title='gusty.bike')
+
+
 @app.route('/login')
 def login():
 

@@ -27,6 +27,7 @@ class user:
 
     @staticmethod
     def check_password(username, password, db):
+
         db.get_cursor().execute("SELECT password FROM users WHERE username = %s", (username,))
 
         row = db.get_cursor().fetchone()
@@ -43,7 +44,7 @@ class user:
         self.id = id
 
         if username is None:
-            self.db.get_cursor().execute("SELECT * FROM users WHERE id = %s", (id,))
+            self.db.get_cursor().execute("SELECT * FROM users WHERE id = %s", id)
 
             row = self.db.get_cursor().fetchone()
 
