@@ -46,7 +46,7 @@
 
         <div class="container-fluid">
             <div class="well" id="login-form" style="margin-top:10%">
-                <form class="form-horizontal" id="login-layout">
+                <form class="form-horizontal" id="login-layout" method="post">
                     <legend>Log In</legend>
                     <div class="form-group">
                         <label for="loginUsername" class="col-lg-3 control-label">Username</label>
@@ -62,10 +62,10 @@
                     </div>
                     <div class="col-lg-2"></div>
                     <div class="col-lg-10">
-                        <button type="button" class="btn btn-link" id="showRegister" style="padding: 0 5px 0 5px;" onclick="window.location.href='/register'">Create an
+                        <button type="submit" class="btn btn-link" id="showRegister" style="padding: 0 5px 0 5px;" onclick="window.location.href='/register'">Create an
                             Account
                         </button>
-                        <button type="button" class="btn btn-info" id="completeLogin">Sign In</button>
+                        <button type="submit" class="btn btn-info" id="completeLogin">Sign In</button>
                     </div>
                     <div class="clearfix"></div>
                 </form>
