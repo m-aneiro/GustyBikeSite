@@ -2,7 +2,7 @@ class config:
     database = {
         "host": "localhost",
         "port": 5432,
-        "username": "name",
+        "username": "obiwan",
         "password": "",
-        "database": "db"
+        "database": "gusty_bike"
     }
