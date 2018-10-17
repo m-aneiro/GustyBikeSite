@@ -2,7 +2,7 @@ import datetime
 import uuid
 
 from flask import Flask, render_template, session, request, url_for, redirect
-#from werkzeug.security import check_password_hash, generate_password_hash
+# from werkzeug.security import check_password_hash, generate_password_hash
 
 from database import database
 from user import user
@@ -12,16 +12,24 @@ app.secret_key = 'F12Zr47j\3yX R~X@H!jmM]Lwf/,?KT'
 
 db = database()
 
-client = "" #the user object
-
 
 @app.route('/')
 def home():
-    return render_template('home.html', page_title='gusty.bike')
+    db.connect()
+
+    if session.get('authenticated'):
+        client = user(session['user_id'], db)
+
+    print(client.username)
+
+    return render_template('home.html', page_title='gusty.bike', client=client)
 
 
 @app.route('/login')
 def login():
+
+    if session.get('authenticated'):
+        return redirect(url_for('home'))
 
     return render_template('login.html', page_title='gusty.bike')
 
@@ -87,6 +95,37 @@ def authenticate():
 @app.route('/post')
 def post():
     return 'hello'
+
+
+@app.route('/admin')
+def admin():
+
+    if not session.get('authenticated'):
+        return redirect(url_for('home'))
+
+    db.connect()
+
+    client = user(session['user_id'], db)
+
+    if not client.rank >= 3:
+        return redirect(url_for('home'))
+
+    return render_template('admin.html', page_title='gusty.bike', client=client)
+
+
+@app.route('/admin/sliders/new')
+def new_slider():
+    if not session.get('authenticated'):
+        return redirect(url_for('home'))
+
+    db.connect()
+
+    client = user(session['user_id'], db)
+
+    if not client.rank >= 3:
+        return redirect(url_for('home'))
+
+    return render_template('admin_sliders_new.html', page_title='gusty.bike')
 
 
 # start the server

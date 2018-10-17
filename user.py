@@ -51,11 +51,12 @@ class user:
         self.id = id
 
         if username is None:
-            self.db.get_cursor().execute("SELECT * FROM users WHERE id = %s", id)
+            self.db.get_cursor().execute("SELECT * FROM users WHERE id = %s", (id, ))
 
             row = self.db.get_cursor().fetchone()
 
             self.username = row["username"]
+            self.rank = row["rank"]
         else:
             self.username = username
 
