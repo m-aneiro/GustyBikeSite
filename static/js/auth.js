@@ -34,7 +34,8 @@ $(document).ready(function() {
             'email': $("#registerEmail").val(),
             'password': $("#registerPassword").val(),
             'password2': $("#registerPassword2").val(),
-            'type': 'r'}, function(response) {
+            'type': 'r'
+        }, function(response) {
             switch (response) {
                 case '0': //fail
                     alertify.error("A user with that username already exists!");
