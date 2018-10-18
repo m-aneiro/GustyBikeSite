@@ -19,10 +19,9 @@ def home():
 
     if session.get('authenticated'):
         client = user(session['user_id'], db)
+        render_template('home.html', page_title='gusty.bike', client=client)
 
-    print(client.username)
-
-    return render_template('home.html', page_title='gusty.bike', client=client)
+    return render_template('home.html', page_title='gusty.bike')
 
 
 @app.route('/login')
