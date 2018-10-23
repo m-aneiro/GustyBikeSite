@@ -12,7 +12,6 @@
 
         <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/alertifyjs@1.8.0/build/css/alertify.min.css" />
         <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/alertifyjs@1.8.0/build/css/themes/default.min.css" />
-        <link rel="stylesheet" href="{{ url_for('static', filename='css/login.css') }}" />
     </head>
     <body>
         <nav class="navbar navbar-expand-md navbar-dark fixed-top bg-dark">
@@ -51,7 +50,7 @@
 
         {%block content %}{% endblock %}
 
-        <footer class="container" style="float: left;position: absolute;bottom: 0;">
+        <footer class="container">
           <p>&copy; Gusty Cooper 2017-2018</p>
         </footer>
 
@@ -63,3 +62,4 @@
         <script src="{{ url_for('static', filename='js/auth.js') }}"></script>
     </body>
 </html>
+
