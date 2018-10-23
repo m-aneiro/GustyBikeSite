@@ -17,11 +17,11 @@ db = database()
 def home():
     db.connect()
 
-    if session.get('authenticated'):
-        client = user(session['user_id'], db)
-        render_template('home.html', page_title='gusty.bike', client=client)
+    if not session.get('authenticated'):
+        return render_template('home.html', page_title='gusty.bike')
 
-    return render_template('home.html', page_title='gusty.bike')
+    client = user(session['user_id'], db)
+    return render_template('home.html', page_title='gusty.bike', client=client)
 
 
 @app.route('/login')
@@ -84,6 +84,9 @@ def authenticate():
                 return '0'  # response 7 user already exists
 
             session['user_id'] = user.create(email, password, username, db)
+
+            print(session['user_id'])
+
             session['authenticated'] = True
 
             return '1'  # response 1 = SUCCESS!
