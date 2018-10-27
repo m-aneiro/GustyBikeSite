@@ -1,4 +1,4 @@
-{% extends "main_layout.html" %}
+{% extends "admin_layout.html" %}
 
 {% block content %}
     <style>
@@ -16,7 +16,7 @@
         <h2>Slider Settings</h2>
         <div class="row">
             <div class="col-md-3">
-                <div class="card">
+                <div class="card" onclick="window.location='/admin/sliders/new'">
                     <div class="card-body">
                         <h5 class="card-title">New Image</h5>
                         <p class="card-text">
@@ -46,7 +46,7 @@
 
         <div class="row">
             <div class="col-md-3">
-                <div class="card">
+                <div class="card" onclick="window.location='/admin/posts/new'">
                     <div class="card-body">
                         <h5 class="card-title">New Post</h5>
                         <p class="card-text">
@@ -87,7 +87,5 @@
                 </div>
             </div>
         </div>
-
-        <hr />
     </div>
 {% endblock %}

@@ -1,14 +1,17 @@
 import datetime
 import uuid
 
+import os
+
 from flask import Flask, render_template, session, request, url_for, redirect
-# from werkzeug.security import check_password_hash, generate_password_hash
 
 from database import database
 from user import user
 
 app = Flask(__name__)
 app.secret_key = 'F12Zr47j\3yX R~X@H!jmM]Lwf/,?KT'
+
+allowed_image_extensions = [".png", ".jpg", ".jpeg"]
 
 db = database()
 
@@ -31,6 +34,14 @@ def login():
         return redirect(url_for('home'))
 
     return render_template('login.html', page_title='gusty.bike')
+
+
+@app.route('/logout')
+def logout():
+    if session.get('authenticated'):
+        session.clear()
+
+    return redirect(url_for('home'))
 
 
 @app.route('/authenticate', methods=['GET', 'POST'])
@@ -127,7 +138,70 @@ def new_slider():
     if not client.rank >= 3:
         return redirect(url_for('home'))
 
-    return render_template('admin_sliders_new.html', page_title='gusty.bike')
+    return render_template('admin_sliders_new.html', page_title='gusty.bike', client=client)
+
+
+@app.route('/admin/api/sliders/new', methods=['POST'])
+def admin_api_new_slider():
+
+    if not admin_check():
+        return '0'  # not an admin
+
+    if not request.method == "POST":
+        return None
+
+    f = request.files["file"]
+    order = request.form["order"]
+
+    if order is None:
+        order = '#'  # user doesn't care about the order
+
+    if not isinstance(order, int) and not order == "#":
+        return 2  # response 2 order not a number
+
+    if f and is_image(f.filename):
+        path = os.path.join("/static/slider_images/", f.filename)
+        f.save(path)
+        return 1  # response 1 success
+
+    return 0  # response 0 uncaught error/type is incorrect
+
+
+@app.route('/admin/posts/new')
+def new_post():
+    if not session.get('authenticated'):
+        return redirect(url_for('home'))
+
+    db.connect()
+
+    client = user(session['user_id'], db)
+
+    if not client.rank >= 3:
+        return redirect(url_for('home'))
+
+    return render_template('admin_posts_new.html', page_title='gusty.bike', client=client)
+
+
+def is_image(file):
+    for ext in allowed_image_extensions:
+        if file.endswith(ext):
+            return True
+
+    return False
+
+
+def admin_check():
+    if not session.get('authenticated'):
+        return False
+
+    db.connect()
+
+    client = user(session['user_id'], db)
+
+    if not client.rank >= 3:
+        return False
+
+    return True
 
 
 # start the server
