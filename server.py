@@ -1,8 +1,7 @@
 import datetime
 import uuid
-
 import os
-
+from datetime import datetime
 from flask import Flask, render_template, session, request, url_for, redirect
 
 from database import database
@@ -62,7 +61,7 @@ def authenticate():
             uid = user.login(username, password, db)
 
             if uid == 0:
-                return '0' # response 0 = fail
+                return '0'  # response 0 = fail
             else:
                 session['user_id'] = uid
                 session['authenticated'] = True
@@ -167,13 +166,49 @@ def admin_api_new_slider():
     return 0  # response 0 uncaught error/type is incorrect
 
 
+@app.route('/admin/api/posts/new', methods=['POST'])
+def admin_api_new_post():
+    if not admin_check():
+        return 0
+
+    if not request.method == "POST":
+        return None
+
+    image = ''
+    path = ''
+    if "file" in request.files:
+        image = request.files["file"]
+    title = request.form["title"]
+    content = request.form["content"]
+
+    if image and is_image(image.filename):
+        path = os.path.join("/static/post_images/", image.filename)
+        image.save(path)
+
+    if not content or not title:
+        return 1
+
+    author_id = session["user_id"]
+
+    try:
+        db.connect()
+        query = """INSERT INTO post (title, content, created, author_id, image_path)
+                   VALUES (%s, %s, NOW(), %s, %s) RETURNING id"""
+        db.get_cursor().execute(query, (title, content, author_id, path))
+    except Exception as error:
+        print(error)
+    generated = db.get_cursor().fetchone()[0]
+    db.commit()
+
+    return generated
+
+
 @app.route('/admin/posts/new')
 def new_post():
     if not session.get('authenticated'):
         return redirect(url_for('home'))
 
     db.connect()
-
     client = user(session['user_id'], db)
 
     if not client.rank >= 3:
