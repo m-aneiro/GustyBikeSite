@@ -1,5 +1,7 @@
 $(document).ready(function() {
 
+    $('#carouselImage').carousel({});
+
     $('#showRegister').on('click', function(){
         $("#login-layout").fadeOut(1000, function() {
             $('#register-layout').fadeIn(1000);

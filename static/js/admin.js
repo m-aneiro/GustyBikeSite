@@ -6,9 +6,7 @@ $(document).ready(function() {
     });
 
     $('#addNewSlider').on('click', function() {
-        var form = $('#sliderForm');
-        var data = new FormData();
-        data.append('file', form[0]);
+        var data = new FormData($('#sliderForm')[0]);
 
         $.ajax({
             url: '/admin/api/sliders/new',
@@ -30,7 +28,7 @@ $(document).ready(function() {
                         break;
 
                 }
-            }
+            },
         });
     });
 

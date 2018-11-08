@@ -6,6 +6,9 @@ from flask import Flask, render_template, session, request, url_for, redirect
 
 from database import database
 from user import user
+from slider import slider
+
+from werkzeug.utils import secure_filename
 
 app = Flask(__name__)
 app.secret_key = 'F12Zr47j\3yX R~X@H!jmM]Lwf/,?KT'
@@ -23,7 +26,10 @@ def home():
         return render_template('home.html', page_title='gusty.bike')
 
     client = user(session['user_id'], db)
-    return render_template('home.html', page_title='gusty.bike', client=client)
+
+    carousel = slider(db)
+
+    return render_template('home.html', page_title='gusty.bike', client=client, carousel=carousel)
 
 
 @app.route('/login')
@@ -140,30 +146,41 @@ def new_slider():
     return render_template('admin_sliders_new.html', page_title='gusty.bike', client=client)
 
 
-@app.route('/admin/api/sliders/new', methods=['POST'])
+@app.route('/admin/api/sliders/new', methods=['GET', 'POST'])
 def admin_api_new_slider():
 
     if not admin_check():
         return '0'  # not an admin
 
     if not request.method == "POST":
-        return None
+        return '0'
 
-    f = request.files["file"]
+    f = request.files["sliderImage"]
     order = request.form["order"]
 
-    if order is None:
+    if order is None or len(order) == 0:
         order = '#'  # user doesn't care about the order
 
     if not isinstance(order, int) and not order == "#":
-        return 2  # response 2 order not a number
+        return '2'  # response 2 order not a number
 
     if f and is_image(f.filename):
-        path = os.path.join("/static/slider_images/", f.filename)
-        f.save(path)
-        return 1  # response 1 success
+        path = os.path.join("./static/slider_images/", secure_filename(f.filename))
 
-    return 0  # response 0 uncaught error/type is incorrect
+        print(path)
+
+        f.save(path)
+
+        carousel = slider(db)
+
+        if order == "#":
+            carousel.upload(path, 0)
+        else:
+            carousel.upload(path, order)
+
+        return '1'  # response 1 success
+
+    return '0'  # response 0 uncaught error/type is incorrect
 
 
 @app.route('/admin/api/posts/new', methods=['POST'])
@@ -241,4 +258,4 @@ def admin_check():
 
 # start the server
 if __name__ == '__main__':
-    app.run()
+    app.run(debug=True)
