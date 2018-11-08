@@ -1,5 +1,3 @@
-import datetime
-import uuid
 import os
 from datetime import datetime
 from flask import Flask, render_template, session, request, url_for, redirect
@@ -7,6 +5,8 @@ from flask import Flask, render_template, session, request, url_for, redirect
 from database import database
 from user import user
 from slider import slider
+from posts import posts
+from post import post
 
 from werkzeug.utils import secure_filename
 
@@ -110,8 +110,12 @@ def authenticate():
         return None  # return nothing because the request isnt valid
 
 
-@app.route('/post')
-def post():
+@app.route('/post/<id>')
+def post(id):
+    db.connect()
+
+    p = post(id)
+
     return 'hello'
 
 
@@ -146,6 +150,20 @@ def new_slider():
     return render_template('admin_sliders_new.html', page_title='gusty.bike', client=client)
 
 
+@app.route('/admin/posts/new')
+def new_post():
+    if not session.get('authenticated'):
+        return redirect(url_for('home'))
+
+    db.connect()
+    client = user(session['user_id'], db)
+
+    if not client.rank >= 3:
+        return redirect(url_for('home'))
+
+    return render_template('admin_posts_new.html', page_title='gusty.bike', client=client)
+
+
 @app.route('/admin/api/sliders/new', methods=['GET', 'POST'])
 def admin_api_new_slider():
 
@@ -167,8 +185,6 @@ def admin_api_new_slider():
     if f and is_image(f.filename):
         path = os.path.join("./static/slider_images/", secure_filename(f.filename))
 
-        print(path)
-
         f.save(path)
 
         carousel = slider(db)
@@ -186,52 +202,32 @@ def admin_api_new_slider():
 @app.route('/admin/api/posts/new', methods=['POST'])
 def admin_api_new_post():
     if not admin_check():
-        return 0
+        return "admin_fail"
 
     if not request.method == "POST":
         return None
 
-    image = ''
-    path = ''
-    if "file" in request.files:
-        image = request.files["file"]
     title = request.form["title"]
     content = request.form["content"]
 
-    if image and is_image(image.filename):
-        path = os.path.join("/static/post_images/", image.filename)
-        image.save(path)
+    if title is None:
+        return "title_fail"
 
-    if not content or not title:
-        return 1
+    if content is None:
+        return "content_fail"
 
     author_id = session["user_id"]
 
-    try:
-        db.connect()
-        query = """INSERT INTO post (title, content, created, author_id, image_path)
-                   VALUES (%s, %s, NOW(), %s, %s) RETURNING id"""
-        db.get_cursor().execute(query, (title, content, author_id, path))
-    except Exception as error:
-        print(error)
-    generated = db.get_cursor().fetchone()[0]
-    db.commit()
+    if "image" in request.files:
+        f = request.files["image"]
 
-    return generated
+        if f and is_image(f.filename):
+            path = os.path.join("/static/post_images/", secure_filename(f.filename))
+            f.save(path)
 
+            return post.create(db, title, content, author_id, path)
 
-@app.route('/admin/posts/new')
-def new_post():
-    if not session.get('authenticated'):
-        return redirect(url_for('home'))
-
-    db.connect()
-    client = user(session['user_id'], db)
-
-    if not client.rank >= 3:
-        return redirect(url_for('home'))
-
-    return render_template('admin_posts_new.html', page_title='gusty.bike', client=client)
+    return post.create(db, title, content, author_id, "")
 
 
 def is_image(file):

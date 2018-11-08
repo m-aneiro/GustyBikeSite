@@ -18,7 +18,7 @@ $(document).ready(function() {
             success: function(response) {
                 switch (response) {
                     case '0': //fail
-                        alertify.error("Error uploading file, please make sure you are upload a valid image");
+                        alertify.error("Error uploading file, please make sure you are upload a valid image!");
                         break;
                     case '1': //success
                         alertify.success("Image successfully added to the Homepage Slider!");
@@ -37,7 +37,7 @@ $(document).ready(function() {
         var data = new FormData();
         data.append('title', form[0]);
         data.append('content', form[1]);
-        data.append('file', form[2]);
+        data.append('image', form[2]);
 
         $.ajax({
             url: '/admin/api/posts/new',
@@ -48,12 +48,17 @@ $(document).ready(function() {
             contentType: false,
             success: function(response) {
                 switch (response) {
-                    case '0': //fail
-                        alertify.error("Error creating post");
+                    case 'admin_fail': //fail
+                        alertify.error("Error creating post!");
                         break;
-                    case '1': //success
-                        alertify.error("Post is missing a title or body");
+                    case 'title_fail': //success
+                        alertify.error("Post is missing a title!");
                         break;
+                    case 'content_fail': //success
+                        alertify.error("Post is missing a body!");
+                        break;
+                    default:
+                        window.location.href = "/post/" + response; //send user to the new post
                 }
             }
         });
